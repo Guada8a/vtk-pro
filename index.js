@@ -61,7 +61,7 @@ async function createProject() {
       const folderPath = path.join(process.cwd(), folder);
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
-        if (!folder.includes('assets') && !folder.includes('components/errors')) {
+        if (!folder.includes('assets') && !folder.includes('components/errors') && !folder.includes('themes')) {
           const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
           fs.writeFileSync(path.join(folderPath, fileType), '');
         }
@@ -502,8 +502,8 @@ return (
       fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
     }
 
-    // ================== theme/antdTheme.ts ==================
-    const antdThemePath = path.join(process.cwd(), 'src', 'theme', 'antdTheme.ts');
+    // ================== themes/antdTheme.ts ==================
+    const antdThemePath = path.join(process.cwd(), 'src', 'themes', 'antdTheme.ts');
     const antdThemeContent = 
 `export const theme = {
   token: {
