@@ -86,24 +86,30 @@ async function createProject() {
 
     if (fs.existsSync(tsConfigPath)) {
       try {
-        // Leer el contenido del archivo
-        const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+        // Leer el contenido del archivo y asegurarse de que sea JSON válido
+        const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8')
+          .replace(/\/\/.*/g, '') // Remove any comments
+          .replace(/,(\s*[}\]])/g, '$1'); // Remove trailing commas
+
         const tsConfigJson = JSON.parse(tsConfigContent);
-    
+
         // Actualizar o agregar las propiedades necesarias
         tsConfigJson.compilerOptions = {
           ...tsConfigJson.compilerOptions,
-          baseUrl: ".",
-          paths: {
+          "baseUrl": ".",
+          "paths": {
             "@/*": ["src/*"]
           }
         };
-    
-        // Guardar el archivo actualizado
-        fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfigJson, null, 2));
+
+        // Guardar el archivo actualizado con formato adecuado
+        fs.writeFileSync(
+          tsConfigPath,
+          JSON.stringify(tsConfigJson, null, 2)
+        );
         console.log('Archivo tsconfig.app.json actualizado correctamente.');
       } catch (error) {
-        console.error('Error al procesar el archivo tsconfig.app.json:', error.message);
+        console.error('Error al procesar el archivo tsconfig.app.json:', error);
       }
     } else {
       console.error('El archivo tsconfig.app.json no existe.');
@@ -113,18 +119,18 @@ async function createProject() {
     const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
     if (fs.existsSync(viteConfigPath)) {
       const viteConfigContent = `
-        import { defineConfig } from 'vite'
-        import react from '@vitejs/plugin-react'
-        import path from 'path'
-        // https://vite.dev/config/
-        export default defineConfig({
-          plugins: [react()],
-          resolve: {
-            alias: {
-              '@': path.resolve(__dirname, 'src'),
-            },
-          },
-        })
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+})
       `;
       fs.writeFileSync(viteConfigPath, viteConfigContent);
     }
@@ -132,24 +138,21 @@ async function createProject() {
     // ================== App.tsx ==================
     const appPath = path.join(process.cwd(), 'src', 'App.tsx');
     if (fs.existsSync(appPath)) {
-      const appContent = `
-      import { RouterProvider } from 'react-router';
-      import { ConfigProvider } from 'antd';
-      import Routes from '@/router';
-      import { theme } from '@/theme/antdTheme';
-
-      function App() {
-        return (
-          <>
-            <ConfigProvider theme={theme}>
-              <RouterProvider router={Routes} />
-            </ConfigProvider>
-          </>
-      )
-    }
-
-    export default App
-      `;
+      const appContent =
+        `import { RouterProvider } from 'react-router';
+import { ConfigProvider } from 'antd';
+import Routes from '@/router';
+import { theme } from '@/theme/antdTheme';
+function App() {
+  return (
+    <>
+      <ConfigProvider theme={theme}>
+        <RouterProvider router={Routes} />
+      </ConfigProvider>
+    </>
+  )
+}
+export default App`;
       fs.writeFileSync(appPath, appContent);
     }
 
