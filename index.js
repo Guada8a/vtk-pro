@@ -35,7 +35,7 @@ async function createProject() {
     //Será vite 6.0.11 por problemas con la versión 19.0.0
     await executeCommand('npm', ['init', 'vite@6.0', '.', '--template', 'react-ts', '--', '--y']);
 
-    console.log('\x1b[44m%s\x1b[0m', 'CREATE- creating folder structure');
+    console.log('📂 Creating folder structure...');
 
     // Estructura de carpetas
     const folders = [
@@ -68,7 +68,7 @@ async function createProject() {
       }
     });
 
-    console.log('\x1b[44m%s\x1b[0m', 'CREATE- creating files');
+    console.log('📄 Creating files...');
 
     // Crear en raíz lo siguiente: // - .env, .env.qa, .env.prod, .gitignore
 
@@ -86,7 +86,15 @@ async function createProject() {
       }
     }`);
 
-    // Modificar vite.config.ts si existe
+    // Crear archivo .gitignore
+    fs.writeFileSync(path.join(process.cwd(), '.gitignore'), `
+node_modules
+dist
+.cache
+.env
+`);
+
+    // ================== vite.config.ts ==================
     const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
     if (fs.existsSync(viteConfigPath)) {
       const viteConfigContent = `
@@ -126,6 +134,45 @@ function App() {
 export default App`;
       fs.writeFileSync(appPath, appContent);
     }
+
+    // tsconfig.app.json
+    const tsconfigAppPath = path.join(process.cwd(), 'tsconfig.app.json');
+    if (fs.existsSync(tsconfigAppPath)) {
+      const tsconfigAppContent = `
+      {
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+      `;
+      fs.writeFileSync(tsconfigAppPath, tsconfigAppContent);
+    }
+
 
     // ================== page/index.tsx ==================
     const indexPath = path.join(process.cwd(), 'src', 'pages', 'index.tsx');
@@ -463,7 +510,10 @@ return (
       'react-router@latest',
       'tailwindcss @tailwindcss/vite',
       'dayjs',
-      'kamey-components@latest'
+      'kamey-components@latest',
+      'framer-motion',
+      'react-icons',
+      'env-cmd',
     ];
     for (const dep of dependencies) {
       console.log(`⏳ Installing ${dep}...`);
