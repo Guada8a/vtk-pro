@@ -48,8 +48,8 @@ exec('npm create vite@latest . -- --template react-ts', (error, stdout, stderr) 
 
     console.log('📦 Installing dependencies...');
     
-    // Instalar dependencias
-    exec('npm install', (error, stdout, stderr) => {
+    // Instalar dependencias básicas y axios
+    exec('npm install && npm install axios', (error, stdout, stderr) => {
         if (error) {
             console.error(`Error installing dependencies: ${error}`);
             return;
