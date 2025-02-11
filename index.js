@@ -30,10 +30,12 @@ function executeCommand(command, args) {
 
 async function createProject() {
   try {
-    // Crear proyecto Vite
-    await executeCommand('npm', ['create', 'vite@latest', '.', '--template', 'react-ts', '--', '--y']);
+    // Crear proyecto Vite con react 19.0.0
+    // await executeCommand('npm', ['create', 'vite@latest', '.', '--template', 'react-ts', '--', '--y']);
+    //Será vite 6.0.11 por problemas con la versión 19.0.0
+    await executeCommand('npm', ['init', 'vite@6.0.11', '.', '--template', 'react-ts', '--', '--y']);
 
-    console.log('📦 Creating folder structure...');
+    console.log('\x1b[44m📦 Creating folder structure...\x1b[0m');
 
     // Estructura de carpetas
     const folders = [
@@ -65,6 +67,8 @@ async function createProject() {
       }
     });
 
+    console.log('\x1b[44m📦 Creating files...\x1b[0m');
+
     // Crear en raíz lo siguiente: // - .env, .env.qa, .env.prod, .gitignore
 
     fs.writeFileSync(path.join(process.cwd(), '.env'), '');
@@ -86,28 +90,23 @@ async function createProject() {
 
     if (fs.existsSync(tsConfigPath)) {
       try {
-        // Leer el contenido del archivo y asegurarse de que sea JSON válido
-        const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8')
-          .replace(/\/\/.*/g, '') // Remove any comments
-          .replace(/,(\s*[}\]])/g, '$1'); // Remove trailing commas
+        // Leer el archivo existente
+        let tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+        let tsConfigJson = JSON.parse(tsConfigContent);
 
-        const tsConfigJson = JSON.parse(tsConfigContent);
+        // Solo agregar o actualizar las propiedades que necesitamos
+        if (!tsConfigJson.compilerOptions) {
+          tsConfigJson.compilerOptions = {};
+        }
 
-        // Actualizar o agregar las propiedades necesarias
-        tsConfigJson.compilerOptions = {
-          ...tsConfigJson.compilerOptions,
-          "baseUrl": ".",
-          "paths": {
-            "@/*": ["src/*"]
-          }
+        tsConfigJson.compilerOptions.baseUrl = ".";
+        tsConfigJson.compilerOptions.paths = {
+          "@/*": ["src/*"]
         };
 
-        // Guardar el archivo actualizado con formato adecuado
-        fs.writeFileSync(
-          tsConfigPath,
-          JSON.stringify(tsConfigJson, null, 2)
-        );
-        console.log('Archivo tsconfig.app.json actualizado correctamente.');
+        // Guardar el archivo con las modificaciones
+        fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfigJson, null, 2));
+        console.log('✅ Archivo tsconfig.app.json actualizado correctamente.');
       } catch (error) {
         console.error('Error al procesar el archivo tsconfig.app.json:', error);
       }
@@ -156,6 +155,8 @@ export default App`;
       fs.writeFileSync(appPath, appContent);
     }
 
+
+
     // ================== index.tsx ==================
     console.log('📦 Installing dependencies...');
     // Instalar dependencias
@@ -171,11 +172,20 @@ export default App`;
     // npm install tailwindcss @tailwindcss/vite
     console.log('⏳ Installing tailwindcss...');
     await executeCommand('npm', ['install', 'tailwindcss', '@tailwindcss/vite']);
+    // npm install dayjs
+    console.log('⏳ Installing dayjs...');
+    await executeCommand('npm', ['install', 'dayjs']);
+    // npm install kamey-components
+    console.log('⏳ Installing kamey-components...');
+    await executeCommand('npm', ['install', 'kamey-components@latest']);
 
-    console.log('✅ Project created successfully!');
-    console.log('\nTo get started:');
-    console.log(`1. cd ${projectName}`);
-    console.log('2. npm run dev');
+
+
+    console.log('\x1b[32m🎉 Project created successfully!\x1b[0m');
+    console.log('\n\x1b[34m🚀 To get started:\x1b[0m');
+    console.log(`\n\x1b[33m📂 1. cd ${projectName}\x1b[0m`);
+    console.log('\x1b[35m⚡ 2. npm run dev\x1b[0m');
+    console.log('\n\x1b[36mHappy coding! 😃\x1b[0m');
 
   } catch (error) {
     console.error('Error:', error);
