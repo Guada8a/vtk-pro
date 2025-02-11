@@ -1,16 +1,21 @@
 #!/usr/bin/env node
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const projectName = process.argv[2] || 'my-vite-ts';
-// Crear el directorio del proyecto
+// Create project directory
 fs.mkdirSync(projectName);
 
-// Cambiar al directorio del proyecto
+// Change to project directory
 process.chdir(projectName);
 
-// Función para ejecutar comandos como promesas
+// Function to execute commands as promises
 function executeCommand(command, args) {
   return new Promise((resolve, reject) => {
     const childProcess = spawn(command, args, {
