@@ -40,3 +40,29 @@ This project uses the following dependencies:
 * React-Icons
 * Framer Motion
 * Zustand
+
+### Getting Started
+
+Once the project is installed, the following files need to be configured:
+
+1. **tsconfig.app.json**: Typescript configuration file.
+
+* Add these lines:
+
+```json
+  "baseUrl": ".",
+  "paths": {
+    "@/*": ["src/*"]
+  }
+```
+
+2. **package.json**: NPM configuration file.
+
+* Add these lines:
+
+```json
+  "scripts": {
+    "build:qa": "env-cmd -f .env.qa vite build",
+    "build:prod": "env-cmd -f .env.prod vite build",
+  }
+```
