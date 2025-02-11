@@ -31,8 +31,6 @@
     "path": "^0.12.7"
   },
   "engines": {
-    "node": ">=14.0.0"
-  },
-  "preferGlobal": false,
-  "type": "module"
+    "node": ">=18.0.0"
+  }
 }
