@@ -35,7 +35,7 @@ async function createProject() {
     //Será vite 6.0.11 por problemas con la versión 19.0.0
     await executeCommand('npm', ['init', 'vite@6.0', '.', '--template', 'react-ts', '--', '--y']);
 
-    console.log('\x1b[44m📦 Creating folder structure...\x1b[0m');
+    console.log('\x1b[44m%s\x1b[0m', 'CREATE- creating folder structure');
 
     // Estructura de carpetas
     const folders = [
@@ -43,12 +43,13 @@ async function createProject() {
       'src/assets/images',
       'src/assets/fonts',
       'src/constants',
-      'src/components',
+      'src/components/errors',
       'src/hooks',
       'src/interfaces',
       'src/layouts',
       'src/pages',
       'src/router',
+      'src/router/loaders',
       'src/store',
       'src/shared/components',
       'src/themes',
@@ -60,14 +61,14 @@ async function createProject() {
       const folderPath = path.join(process.cwd(), folder);
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
-        if (!folder.includes('assets')) {
+        if (!folder.includes('assets') && !folder.includes('components/errors')) {
           const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
           fs.writeFileSync(path.join(folderPath, fileType), '');
         }
       }
     });
 
-    console.log('\x1b[44m📦 Creating files...\x1b[0m');
+    console.log('\x1b[44m%s\x1b[0m', 'CREATE- creating files');
 
     // Crear en raíz lo siguiente: // - .env, .env.qa, .env.prod, .gitignore
 
@@ -84,35 +85,6 @@ async function createProject() {
         }
       }
     }`);
-
-    // Agregar la base en tsconfig.app.json
-    const tsConfigPath = path.join(process.cwd(), 'tsconfig.app.json');
-
-    if (fs.existsSync(tsConfigPath)) {
-      try {
-        // Leer el archivo existente
-        let tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
-        let tsConfigJson = JSON.parse(tsConfigContent);
-
-        // Solo agregar o actualizar las propiedades que necesitamos
-        if (!tsConfigJson.compilerOptions) {
-          tsConfigJson.compilerOptions = {};
-        }
-
-        tsConfigJson.compilerOptions.baseUrl = ".";
-        tsConfigJson.compilerOptions.paths = {
-          "@/*": ["src/*"]
-        };
-
-        // Guardar el archivo con las modificaciones
-        fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfigJson, null, 2));
-        console.log('✅ Archivo tsconfig.app.json actualizado correctamente.');
-      } catch (error) {
-        console.error('Error al procesar el archivo tsconfig.app.json:', error);
-      }
-    } else {
-      console.error('El archivo tsconfig.app.json no existe.');
-    }
 
     // Modificar vite.config.ts si existe
     const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
@@ -155,34 +127,346 @@ export default App`;
       fs.writeFileSync(appPath, appContent);
     }
 
+    // ================== page/index.tsx ==================
+    const indexPath = path.join(process.cwd(), 'src', 'pages', 'index.tsx');
+    if (fs.existsSync(indexPath)) {
+      const indexContent =
+        `const Home = () => {
+  return (
+    <div>
+      <h1 className="text-4xl font-bold text-center">Hello World</h1>
+    </div>
+  )
+}
 
+export default Home`;
+      fs.writeFileSync(indexPath, indexContent);
+    }
+
+    // ================== api/index.ts ==================
+    const apiPath = path.join(process.cwd(), 'src', 'api', 'index.ts');
+    if (fs.existsSync(apiPath)) {
+      const apiContent = 
+      `import { ApiVersioning } from "kamey-components";
+
+const api = new ApiVersioning("url");
+const apiV1 = api.getInstance("v1");
+
+/**
+ * api example
+ */
+export const getExample = async () => {
+  const response = await apiV1.get("/example");
+  return response.data;
+};
+`;
+      fs.writeFileSync(apiPath, apiContent);
+    }
+
+    // ================== router/index.tsx ==================
+    const routerPath = path.join(process.cwd(), 'src', 'router', 'index.tsx');
+    if (fs.existsSync(routerPath)) {
+      const routerContent =
+        `import { createHashRouter } from 'react-router';
+import { ErrorBoundary } from '@/components/errors/ErrorBoundry';
+import { CustomError } from '@/components/errors/CustomError';
+import Home from '../pages';
+
+const Routes = createHashRouter([
+  {
+    path: "/404",
+    element: <CustomError />,
+    errorElement: <ErrorBoundary />
+  },
+  {
+    path: "/",
+    element: (
+      <div>
+        <h1 className="text-4xl font-bold text-center">Hello World</h1>
+      </div>
+    ),
+    errorElement: <ErrorBoundary />,
+    children: [
+      {
+        path: "/",
+        element: <Home />
+      }
+    ]
+  }
+], {
+  future: {
+    v7_relativeSplatPath: true,
+    v7_startTransition: true,
+    v7_fetcherPersist: true,
+    v7_normalizeFormMethod: true,
+    v7_skipActionErrorBvalidation: true,
+    v7_partialHydration: true,
+  }
+});
+
+export default Routes;
+      `;
+      fs.writeFileSync(routerPath, routerContent);
+    }
+
+    // ================== CustomError.tsx ==================
+    const errorPath = path.join(process.cwd(), 'src', 'components', 'errors', 'CustomError.tsx');
+    if (fs.existsSync(errorPath)) {
+      const errorContent = `
+import { FC, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { BiErrorCircle, BiHome } from 'react-icons/bi';
+import { IoMdArrowRoundBack } from 'react-icons/io';
+import { motion } from 'framer-motion';
+
+interface CustomErrorProps {
+  title?: string;
+  status?: string;
+  message?: string;
+  subtitle?: string;
+  redirectTo?: string;
+  primaryColor?: keyof typeof colorMap;
+  showHomeButton?: boolean;
+}
+
+// The color mapping has been simplified to focus on light theme colors
+const colorMap = {
+  'azure': {
+    primary: '#cb2256',
+    secondary: '#df4372',
+    gradient: 'from-azure-500 to-azure-600'
+  },
+  'orange_web': {
+    primary: '#b6cd32',
+    secondary: '#c5d75b',
+    gradient: 'from-orange_web-500 to-orange_web-600'
+  },
+  'raisin-black': {
+    primary: '#272727',
+    secondary: '#525252',
+    gradient: 'from-raisin-black-500 to-raisin-black-600'
+  },
+  'emerald': {
+    primary: '#4c3c3d',
+    secondary: '#775d5f',
+    gradient: 'from-emerald-500 to-emerald-600'
+  }
+} as const;
+
+export const CustomError: FC<CustomErrorProps> = ({
+  title = 'Lo sentimos, ocurrió un error',
+  status = '404',
+  subtitle = 'Página no encontrada',
+  redirectTo,
+  message = '',
+  primaryColor = 'azure',
+  showHomeButton = true
+}) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = \`Error \${status} | \${title}\`;
+  }, [status, title]);
+
+  const handleNavigation = (path?: string) => {
+    if (path) {
+      navigate(path);
+    } else if (typeof redirectTo === 'string') {
+      navigate(redirectTo);
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent, path?: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleNavigation(path);
+    }
+  };
+
+  return (
+    <motion.main 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center p-4"
+    >
+      <div className="max-w-5xl w-full bg-white/90 backdrop-blur-xs rounded-2xl shadow-2xl p-8 border border-emerald-200">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Main Content Section */}
+          <motion.section 
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="order-2 lg:order-1 space-y-8"
+          >
+            <div className="space-y-4">
+              <motion.h2 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl md:text-5xl font-bold text-raisin-black-500 leading-tight"
+              >
+                {title}
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-xl text-emerald-500"
+              >
+                {subtitle}
+              </motion.p>
+            </div>
+
+            {/* Show error */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-4 text-raisin-black-500 text-lg"
+            >
+              <span className="text-raisin-black-600 font-bold">Código:</span>
+              <span className="text-raisin-black-700">{status}</span><br />
+              <span className="text-raisin-black-600 font-bold">Motivo:</span>
+              <span className="text-raisin-black-700">{message}</span>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleNavigation()}
+                onKeyPress={(e) => handleKeyPress(e)}
+                className={\`flex items-center justify-center gap-2 px-6 py-3.5 text-white rounded-xl transition-all duration-300 hover:shadow-lg focus:outline-hidden focus:ring-2 focus:ring-offset-2 text-lg bg-\${primaryColor}-500 hover:bg-\${primaryColor}-600\`}
+                aria-label="Regresar a la página anterior"
+              >
+                <IoMdArrowRoundBack className="text-xl transition-transform group-hover:-translate-x-1" />
+                <span>Regresar</span>
+              </motion.button>
+
+              {showHomeButton && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleNavigation('/')}
+                  onKeyPress={(e) => handleKeyPress(e, '/')}
+                  className={\`flex items-center justify-center gap-2 px-6 py-3.5 text-lg border-2 rounded-xl transition-all duration-300 hover:shadow-lg focus:outline-hidden focus:ring-2 focus:ring-offset-2 border-\${primaryColor}-500 text-\${primaryColor}-500\`}
+                  aria-label="Ir al inicio"
+                >
+                  <BiHome className="text-xl" />
+                  <span>Ir al inicio</span>
+                </motion.button>
+              )}
+            </motion.div>
+          </motion.section>
+
+          {/* Error Illustration */}
+          <motion.section 
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="order-1 lg:order-2 flex justify-center items-center"
+          >
+            <div className="relative inline-block group">
+              <BiErrorCircle 
+                className={\`text-[200px] md:text-[300px] transition-all duration-300 group-hover:scale-105 text-\${primaryColor}-500 opacity-10\`}
+              />
+              <motion.div 
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <h1 
+                  className={\`text-7xl md:text-9xl font-black bg-linear-to-r \${colorMap[primaryColor].gradient} text-transparent bg-clip-text select-none\`}
+                >
+                  {status}
+                </h1>
+              </motion.div>
+            </div>
+          </motion.section>
+        </div>
+      </div>
+    </motion.main>
+  );
+};
+`;
+
+      fs.writeFileSync(errorPath, errorContent, 'utf-8');
+    }
+
+    // ================== ErrorBoundry.tsx ==================
+    const errorBoundryPath = path.join(process.cwd(), 'src', 'components', 'errors', 'ErrorBoundry.tsx');
+    if (fs.existsSync(errorBoundryPath)) {
+      const errorBoundryContent = `
+import { useRouteError, Navigate } from 'react-router';
+import { CustomError } from '@/components/errors/CustomError';
+
+interface RouterError {
+  message: string;
+  status?: number;
+}
+
+export const ErrorBoundary = () => {
+  // Type assertion here since useRouteError can return unknown
+  const error = useRouteError() as RouterError;
+  
+  console.log(error.message);
+
+  if (error.message === 'No hay token') {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (error.message === 'No tienes permisos para acceder a esta ruta') {
+    return (
+      <CustomError 
+        title="Error"
+        status={error.status?.toString()}
+        message={error.message}
+        subtitle="No autorizado"
+        redirectTo="/dashboard"
+      />
+    );
+  }
+
+  return (
+    <CustomError 
+      title="Error"
+      status={error.status?.toString()}
+      message={error.message}
+      subtitle="Algo salió mal"
+      redirectTo="/"
+    />
+  );
+};
+`;
+
+      fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
+    }
 
     // ================== index.tsx ==================
     console.log('📦 Installing dependencies...');
-    // Instalar dependencias
-    await executeCommand('npm', ['install']);
-    console.log('⏳ Installing axios...');
-    await executeCommand('npm', ['install', 'axios']);
-    // Instalar antd --save
-    console.log('⏳ Installing Ant Design...');
-    await executeCommand('npm', ['install', 'antd', 'less', 'less-loader', '--save']);
-    // Instalar react-router@latest
-    console.log('⏳ Installing react-router@latest...');
-    await executeCommand('npm', ['install', 'react-router@latest']);
-    // npm install tailwindcss @tailwindcss/vite
-    console.log('⏳ Installing tailwindcss...');
-    await executeCommand('npm', ['install', 'tailwindcss', '@tailwindcss/vite']);
-    // npm install dayjs
-    console.log('⏳ Installing dayjs...');
-    await executeCommand('npm', ['install', 'dayjs']);
-    // npm install kamey-components
-    console.log('⏳ Installing kamey-components...');
-    await executeCommand('npm', ['install', 'kamey-components@latest']);
-
-
+    const dependencies = [
+      'axios',
+      'antd less less-loader',
+      'react-router@latest',
+      'tailwindcss @tailwindcss/vite',
+      'dayjs',
+      'kamey-components@latest'
+    ];
+    for (const dep of dependencies) {
+      console.log(`⏳ Installing ${dep}...`);
+      await executeCommand('npm', ['install', ...dep.split(' ')]);
+    }
 
     console.log('\x1b[32m🎉 Project created successfully!\x1b[0m');
-    console.log('\n\x1b[34m🚀 To get started:\x1b[0m');
     console.log(`\n\x1b[33m📂 1. cd ${projectName}\x1b[0m`);
     console.log('\x1b[35m⚡ 2. npm run dev\x1b[0m');
     console.log('\n\x1b[36mHappy coding! 😃\x1b[0m');
