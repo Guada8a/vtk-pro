@@ -551,32 +551,53 @@ return (
     console.log('📦 Starting dependencies installation...\n');
     
     const installDependency = async (dep) => {
-      process.stdout.write(`⏳ Installing ${dep.padEnd(30)}`);
+      const gray = '\x1b[90m';
+      const cyan = '\x1b[36m';
+      const green = '\x1b[32m';
+      const red = '\x1b[31m';
+      const reset = '\x1b[0m';
+      const dim = '\x1b[2m';
+      const bright = '\x1b[1m';
+    
+      process.stdout.write(`${cyan}⏳ ${bright}Installing ${reset}${gray}${dep.padEnd(35)}${reset}`);
       try {
         await executeCommand('npm', ['install', '--silent', ...dep.split(' ')]);
-        console.log('✅');
+        process.stdout.write(`\r${green}✓ ${bright}Installed  ${reset}${gray}${dep.padEnd(35)}${reset}\n`);
       } catch (error) {
-        console.log('❌');
+        process.stdout.write(`\r${red}✗ Failed     ${reset}${gray}${dep.padEnd(35)}${reset}\n`);
         throw error;
       }
     };
     
     (async () => {
       try {
+        console.log('\n📦 \x1b[1mStarting dependencies installation...\x1b[0m\n');
+        
         for (const dep of dependencies) {
           await installDependency(dep);
         }
-        console.log('\n✨ All dependencies have been successfully installed!\n');
+    
+        const successBox = [
+          '\n\x1b[32m╭─────────────────────────────────────╮',
+          '│     ✨ Installation Complete! ✨      │',
+          '╰─────────────────────────────────────╯\x1b[0m\n'
+        ];
+    
+        console.log(successBox.join('\n'));
+        console.log('\x1b[1m\x1b[32m🎉 Project created successfully!\x1b[0m');
+        console.log('\n\x1b[33m📂  Run the following commands:\x1b[0m');
+        console.log(`\x1b[90m╭─────────────────────────────╮`);
+        console.log(`\x1b[90m│\x1b[0m  cd ${projectName.padEnd(23)}\x1b[90m│\x1b[0m`);
+        console.log(`\x1b[90m│\x1b[0m  npm run dev${' '.repeat(16)}\x1b[90m│\x1b[0m`);
+        console.log(`\x1b[90m╰─────────────────────────────╯\x1b[0m`);
+        console.log('\n\x1b[36m💻 Happy coding! 😃\x1b[0m\n');
       } catch (error) {
-        console.log('\n❌ Installation error:', error);
+        console.log('\n\x1b[31m╭─────────────────────────╮');
+        console.log('│    Installation Error    │');
+        console.log('╰─────────────────────────╯\x1b[0m');
+        console.error('\x1b[31m❌ Error:\x1b[0m', error);
       }
     })();
-
-    console.log('\x1b[32m🎉 Project created successfully!\x1b[0m');
-    console.log(`\n\x1b[33m📂 1. cd ${projectName}\x1b[0m`);
-    console.log('\x1b[35m⚡ 2. npm run dev\x1b[0m');
-    console.log('\n\x1b[36mHappy coding! 😃\x1b[0m');
-
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);
