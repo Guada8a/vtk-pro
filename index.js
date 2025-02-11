@@ -193,8 +193,8 @@ export default Home`;
     // ================== api/index.ts ==================
     const apiPath = path.join(process.cwd(), 'src', 'api', 'index.ts');
     if (fs.existsSync(apiPath)) {
-      const apiContent = 
-      `import { ApiVersioning } from "kamey-components";
+      const apiContent =
+        `import { ApiVersioning } from "kamey-components";
 
 const api = new ApiVersioning("url");
 const apiV1 = api.getInstance("v1");
@@ -446,7 +446,7 @@ return (
 `;
     if (fs.existsSync(errorPath)) {
       fs.writeFileSync(errorPath, errorContent, 'utf-8');
-    }else{
+    } else {
       // Crear archivo CustomError.tsx
       fs.writeFileSync(errorPath, errorContent, 'utf-8');
     }
@@ -502,8 +502,40 @@ return (
       fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
     }
 
-    // ================== index.tsx ==================
-    console.log('📦 Installing dependencies...');
+    // ================== theme/antdTheme.ts ==================
+    const antdThemePath = path.join(process.cwd(), 'src', 'theme', 'antdTheme.ts');
+    const antdThemeContent = 
+`export const theme = {
+  token: {
+    // ==== [ Typography ] ====
+    fontFamily: 'Montserrat, sans-serif',
+    borderRadius: 12,
+    // fontSize: '16px',
+    // ==== [ Colors ] ====
+    colorPrimary: '#202636',
+    colorSuccess: '#00bd69ff',
+    colorTextBase: '#333333ff',
+    colorBgBase: '#fff',
+  },
+  components: {
+    Table: {
+      headerBg: "#36405cff",
+      headerColor: "#FFFFFF",
+      headerSortActiveBg: "#36405cff",
+      headerSortHoverBg: "#36405cff",
+    }
+  }
+};
+`;
+    if (fs.existsSync(antdThemePath)) {
+      fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
+    } else {
+      // Crear archivo antdTheme.ts
+      fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
+    }
+
+
+
     const dependencies = [
       'axios',
       'antd',
@@ -515,10 +547,40 @@ return (
       'react-icons',
       'env-cmd',
     ];
-    for (const dep of dependencies) {
-      console.log(`⏳ Installing ${dep}...`);
-      await executeCommand('npm', ['install', ...dep.split(' ')]);
-    }
+    
+    console.log('📦 Starting dependencies installation...\n');
+    
+    const executeCommand = (command, args) => {
+      return new Promise((resolve, reject) => {
+        const process = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+        process.on('close', (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(`Command failed with code ${code}`));
+        });
+      });
+    };
+    
+    const installDependency = async (dep) => {
+      process.stdout.write(`⏳ Installing ${dep.padEnd(30)}`);
+      try {
+        await executeCommand('npm', ['install', '--silent', ...dep.split(' ')]);
+        console.log('✅');
+      } catch (error) {
+        console.log('❌');
+        throw error;
+      }
+    };
+    
+    (async () => {
+      try {
+        for (const dep of dependencies) {
+          await installDependency(dep);
+        }
+        console.log('\n✨ All dependencies have been successfully installed!\n');
+      } catch (error) {
+        console.log('\n❌ Installation error:', error);
+      }
+    })();
 
     console.log('\x1b[32m🎉 Project created successfully!\x1b[0m');
     console.log(`\n\x1b[33m📂 1. cd ${projectName}\x1b[0m`);
