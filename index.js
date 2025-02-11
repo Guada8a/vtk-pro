@@ -56,28 +56,47 @@ async function createProject() {
       'src/utils',
     ];
 
-    // Crear carpetas
-    folders.forEach(folder => {
-      const folderPath = path.join(process.cwd(), folder);
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-        if (!folder.includes('assets') && !folder.includes('components/errors') && !folder.includes('themes')) {
-          const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
-          fs.writeFileSync(path.join(folderPath, fileType), '');
+    // Dentro de createProject, antes de crear las carpetas y archivos:
+    const gray = '\x1b[90m';
+    const cyan = '\x1b[36m';
+    const green = '\x1b[32m';
+    const red = '\x1b[31m';
+    const reset = '\x1b[0m';
+    const bright = '\x1b[1m';
+
+    // Mostrar mensaje de inicio de creación de estructura
+    process.stdout.write(`${cyan}⏳ ${bright}Creating project structure ${reset}${gray}${''.padEnd(20)}${reset}`);
+
+    try {
+      // Crear carpetas
+      folders.forEach(folder => {
+        const folderPath = path.join(process.cwd(), folder);
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+          if (!folder.includes('assets') && !folder.includes('components/errors') && !folder.includes('themes')) {
+            const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
+            fs.writeFileSync(path.join(folderPath, fileType), '');
+          }
         }
-      }
-    });
+      });
+      process.stdout.write(`\r${green}✓ Created project structure ${reset}${gray}${''.padEnd(20)}${reset}\n`);
+    }
+    catch (error) {
+      process.stdout.write(`\r${red}✗ Failed to create project structure ${reset}${gray}${''.padEnd(20)}${reset}\n`);
+      throw error;
+    }
 
     console.log('📄 Creating files...');
+    process.stdout.write(`${cyan}⏳ ${bright}Creating files ${reset}${gray}${''.padEnd(40)}${reset}`);
 
-    // Crear en raíz lo siguiente: // - .env, .env.qa, .env.prod, .gitignore
+    try {
 
-    fs.writeFileSync(path.join(process.cwd(), '.env'), '');
-    fs.writeFileSync(path.join(process.cwd(), '.env.qa'), '');
-    fs.writeFileSync(path.join(process.cwd(), '.env.prod'), '');
+      fs.writeFileSync(path.join(process.cwd(), '.env'), '');
+      fs.writeFileSync(path.join(process.cwd(), '.env.qa'), '');
+      fs.writeFileSync(path.join(process.cwd(), '.env.prod'), '');
 
-    //Crear archivo jsconfig.json
-    fs.writeFileSync(path.join(process.cwd(), 'jsconfig.json'), `{
+      //Crear archivo jsconfig.json
+      fs.writeFileSync(path.join(process.cwd(), 'jsconfig.json'), `{
       "compilerOptions": {
         "baseUrl": "./src",
         "paths": {
@@ -86,18 +105,18 @@ async function createProject() {
       }
     }`);
 
-    // Crear archivo .gitignore
-    fs.writeFileSync(path.join(process.cwd(), '.gitignore'), `
+      // Crear archivo .gitignore
+      fs.writeFileSync(path.join(process.cwd(), '.gitignore'), `
 node_modules
 dist
 .cache
 .env
 `);
 
-    // ================== vite.config.ts ==================
-    const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
-    if (fs.existsSync(viteConfigPath)) {
-      const viteConfigContent = `
+      // ================== vite.config.ts ==================
+      const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
+      if (fs.existsSync(viteConfigPath)) {
+        const viteConfigContent = `
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -111,14 +130,14 @@ export default defineConfig({
   },
 })
       `;
-      fs.writeFileSync(viteConfigPath, viteConfigContent);
-    }
+        fs.writeFileSync(viteConfigPath, viteConfigContent);
+      }
 
-    // ================== App.tsx ==================
-    const appPath = path.join(process.cwd(), 'src', 'App.tsx');
-    if (fs.existsSync(appPath)) {
-      const appContent =
-        `import { RouterProvider } from 'react-router';
+      // ================== App.tsx ==================
+      const appPath = path.join(process.cwd(), 'src', 'App.tsx');
+      if (fs.existsSync(appPath)) {
+        const appContent =
+          `import { RouterProvider } from 'react-router';
 import { ConfigProvider } from 'antd';
 import Routes from '@/router';
 import { theme } from '@/theme/antdTheme';
@@ -132,13 +151,13 @@ function App() {
   )
 }
 export default App`;
-      fs.writeFileSync(appPath, appContent);
-    }
+        fs.writeFileSync(appPath, appContent);
+      }
 
-    // tsconfig.app.json
-    const tsconfigAppPath = path.join(process.cwd(), 'tsconfig.app.json');
-    if (fs.existsSync(tsconfigAppPath)) {
-      const tsconfigAppContent = `
+      // tsconfig.app.json
+      const tsconfigAppPath = path.join(process.cwd(), 'tsconfig.app.json');
+      if (fs.existsSync(tsconfigAppPath)) {
+        const tsconfigAppContent = `
       {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -170,15 +189,14 @@ export default App`;
   "include": ["src"]
 }
       `;
-      fs.writeFileSync(tsconfigAppPath, tsconfigAppContent);
-    }
+        fs.writeFileSync(tsconfigAppPath, tsconfigAppContent);
+      }
 
-
-    // ================== page/index.tsx ==================
-    const indexPath = path.join(process.cwd(), 'src', 'pages', 'index.tsx');
-    if (fs.existsSync(indexPath)) {
-      const indexContent =
-        `const Home = () => {
+      // ================== page/index.tsx ==================
+      const indexPath = path.join(process.cwd(), 'src', 'pages', 'index.tsx');
+      if (fs.existsSync(indexPath)) {
+        const indexContent =
+          `const Home = () => {
   return (
     <div>
       <h1 className="text-4xl font-bold text-center">Hello World</h1>
@@ -187,14 +205,14 @@ export default App`;
 }
 
 export default Home`;
-      fs.writeFileSync(indexPath, indexContent);
-    }
+        fs.writeFileSync(indexPath, indexContent);
+      }
 
-    // ================== api/index.ts ==================
-    const apiPath = path.join(process.cwd(), 'src', 'api', 'index.ts');
-    if (fs.existsSync(apiPath)) {
-      const apiContent =
-        `import { ApiVersioning } from "kamey-components";
+      // ================== api/index.ts ==================
+      const apiPath = path.join(process.cwd(), 'src', 'api', 'index.ts');
+      if (fs.existsSync(apiPath)) {
+        const apiContent =
+          `import { ApiVersioning } from "kamey-components";
 
 const api = new ApiVersioning("url");
 const apiV1 = api.getInstance("v1");
@@ -207,14 +225,14 @@ export const getExample = async () => {
   return response.data;
 };
 `;
-      fs.writeFileSync(apiPath, apiContent);
-    }
+        fs.writeFileSync(apiPath, apiContent);
+      }
 
-    // ================== router/index.tsx ==================
-    const routerPath = path.join(process.cwd(), 'src', 'router', 'index.tsx');
-    if (fs.existsSync(routerPath)) {
-      const routerContent =
-        `import { createHashRouter } from 'react-router';
+      // ================== router/index.tsx ==================
+      const routerPath = path.join(process.cwd(), 'src', 'router', 'index.tsx');
+      if (fs.existsSync(routerPath)) {
+        const routerContent =
+          `import { createHashRouter } from 'react-router';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundry';
 import { CustomError } from '@/components/errors/CustomError';
 import Home from '../pages';
@@ -253,12 +271,12 @@ const Routes = createHashRouter([
 
 export default Routes;
       `;
-      fs.writeFileSync(routerPath, routerContent);
-    }
+        fs.writeFileSync(routerPath, routerContent);
+      }
 
-    // ================== CustomError.tsx ==================
-    const errorPath = path.join(process.cwd(), 'src', 'components', 'errors', 'CustomError.tsx');
-    const errorContent = `
+      // ================== CustomError.tsx ==================
+      const errorPath = path.join(process.cwd(), 'src', 'components', 'errors', 'CustomError.tsx');
+      const errorContent = `
 import { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { BiErrorCircle, BiHome } from 'react-icons/bi';
@@ -444,16 +462,16 @@ return (
 );
 };
 `;
-    if (fs.existsSync(errorPath)) {
-      fs.writeFileSync(errorPath, errorContent, 'utf-8');
-    } else {
-      // Crear archivo CustomError.tsx
-      fs.writeFileSync(errorPath, errorContent, 'utf-8');
-    }
+      if (fs.existsSync(errorPath)) {
+        fs.writeFileSync(errorPath, errorContent, 'utf-8');
+      } else {
+        // Crear archivo CustomError.tsx
+        fs.writeFileSync(errorPath, errorContent, 'utf-8');
+      }
 
-    // ================== ErrorBoundry.tsx ==================
-    const errorBoundryPath = path.join(process.cwd(), 'src', 'components', 'errors', 'ErrorBoundry.tsx');
-    const errorBoundryContent = `
+      // ================== ErrorBoundry.tsx ==================
+      const errorBoundryPath = path.join(process.cwd(), 'src', 'components', 'errors', 'ErrorBoundry.tsx');
+      const errorBoundryContent = `
 import { useRouteError, Navigate } from 'react-router';
 import { CustomError } from '@/components/errors/CustomError';
 
@@ -495,17 +513,17 @@ return (
 );
 };
 `;
-    if (fs.existsSync(errorBoundryPath)) {
-      fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
-    } else {
-      // Crear archivo ErrorBoundry.tsx
-      fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
-    }
+      if (fs.existsSync(errorBoundryPath)) {
+        fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
+      } else {
+        // Crear archivo ErrorBoundry.tsx
+        fs.writeFileSync(errorBoundryPath, errorBoundryContent, 'utf-8');
+      }
 
-    // ================== themes/antdTheme.ts ==================
-    const antdThemePath = path.join(process.cwd(), 'src', 'themes', 'antdTheme.ts');
-    const antdThemeContent = 
-`export const theme = {
+      // ================== themes/antdTheme.ts ==================
+      const antdThemePath = path.join(process.cwd(), 'src', 'themes', 'antdTheme.ts');
+      const antdThemeContent =
+        `export const theme = {
   token: {
     // ==== [ Typography ] ====
     fontFamily: 'Montserrat, sans-serif',
@@ -527,14 +545,18 @@ return (
   }
 };
 `;
-    if (fs.existsSync(antdThemePath)) {
-      fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
-    } else {
-      // Crear archivo antdTheme.ts
-      fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
+      if (fs.existsSync(antdThemePath)) {
+        fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
+      } else {
+        // Crear archivo antdTheme.ts
+        fs.writeFileSync(antdThemePath, antdThemeContent, 'utf-8');
+      }
+
+      process.stdout.write(`\r${green}✓ Created files ${reset}${gray}${''.padEnd(40)}${reset}\n`);
+    } catch (error) {
+      process.stdout.write(`\r${red}✗ Failed to create files ${reset}${gray}${''.padEnd(40)}${reset}\n`);
+      throw error;
     }
-
-
 
     const dependencies = [
       'axios',
@@ -547,9 +569,7 @@ return (
       'react-icons',
       'env-cmd',
     ];
-    
-    console.log('📦 Starting dependencies installation...\n');
-    
+
     const installDependency = async (dep) => {
       const gray = '\x1b[90m';
       const cyan = '\x1b[36m';
@@ -558,7 +578,7 @@ return (
       const reset = '\x1b[0m';
       const dim = '\x1b[2m';
       const bright = '\x1b[1m';
-    
+
       process.stdout.write(`${cyan}⏳ ${bright}Installing ${reset}${gray}${dep.padEnd(35)}${reset}`);
       try {
         await executeCommand('npm', ['install', '--silent', ...dep.split(' ')]);
@@ -568,21 +588,21 @@ return (
         throw error;
       }
     };
-    
+
     (async () => {
       try {
         console.log('\n📦 \x1b[1mStarting dependencies installation...\x1b[0m\n');
-        
+
         for (const dep of dependencies) {
           await installDependency(dep);
         }
-    
+
         const successBox = [
           '\n\x1b[32m╭─────────────────────────────────────╮',
           '│     ✨ Installation Complete! ✨      │',
           '╰─────────────────────────────────────╯\x1b[0m\n'
         ];
-    
+
         console.log(successBox.join('\n'));
         console.log('\x1b[1m\x1b[32m🎉 Project created successfully!\x1b[0m');
         console.log('\n\x1b[33m📂  Run the following commands:\x1b[0m');
