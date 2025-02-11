@@ -82,20 +82,27 @@ async function createProject() {
     }`);
 
     // Agregar la base en tsconfig.app.json
-    const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
+    const tsConfigPath = path.join(process.cwd(), 'tsconfig.app.json');
+
+    // Verifica si el archivo existe
     if (fs.existsSync(tsConfigPath)) {
-      const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
-      const tsConfigAppend = `
-  {
-    "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["*"]
-    }
-    }
-  }
-  `;
-      fs.writeFileSync(tsConfigPath, tsConfigContent + tsConfigAppend);
+      // Lee el contenido actual del archivo
+      const tsConfigContent = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
+
+      // Agrega o actualiza las opciones necesarias en compilerOptions
+      tsConfigContent.compilerOptions = {
+        ...tsConfigContent.compilerOptions,
+        baseUrl: ".",
+        paths: {
+          "@/*": ["src/*"]
+        }
+      };
+
+      // Escribe el contenido actualizado en el archivo
+      fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfigContent, null, 2));
+      console.log('Archivo tsconfig.app.json actualizado correctamente.');
+    } else {
+      console.error('El archivo tsconfig.app.json no existe.');
     }
 
     // Modificar vite.config.ts si existe
@@ -120,8 +127,6 @@ import path from 'path'
 
 
     console.log('📦 Installing dependencies...');
-    //Mostar mensaje de instalación de dependencias
-    console.log('⏳ Installing dependencies...');
     // Instalar dependencias
     await executeCommand('npm', ['install']);
     console.log('⏳ Installing axios...');
