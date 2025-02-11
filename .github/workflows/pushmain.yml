@@ -27,9 +27,6 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 📦 Build
-        run: npm run build
-
       - name: Check Git status
         run: git status
 
@@ -55,7 +52,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git commit -m "Build artifacts" || echo "No changes to commit"
+          git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
           git push
           git push --tags
