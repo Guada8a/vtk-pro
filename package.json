@@ -1,0 +1,36 @@
+{
+  "name": "fast-project",
+  "version": "1.0.0",
+  "description": "Generador rápido de proyectos con Vite y TypeScript",
+  "main": "index.js",
+  "bin": {
+    "fast-project": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guada8a/fast-project.git"
+  },
+  "keywords": [
+    "vite",
+    "typescript",
+    "react",
+    "project-generator"
+  ],
+  "author": "Guada8a",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Guada8a/fast-project/issues"
+  },
+  "homepage": "https://github.com/Guada8a/fast-project#readme",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,66 @@
+name: Version and Release
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/**'
+    
+jobs:
+  version-and-release:
+    if: ${{ !contains(github.event.head_commit.message, 'Release') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.REPOSITORY_TOKEN }}
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 📦 Build
+        run: npm run build
+
+      - name: Check Git status
+        run: git status
+
+      - name: Stage changes
+        run: |
+          git add .
+          git status
+
+      - name: 🕵️ Detect version type
+        id: version-type
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          if [[ $COMMIT_MSG == *"BREAKING CHANGE"* ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif [[ $COMMIT_MSG == *"feat:"* ]]; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🏷️ Version and tag
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Build artifacts" || echo "No changes to commit"
+          npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
+          git push
+          git push --tags
+
+      - name: 📦 Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
