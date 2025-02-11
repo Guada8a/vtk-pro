@@ -83,14 +83,20 @@ async function createProject() {
 
     // Agregar la base en tsconfig.app.json
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
-
-    const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
-    tsConfig.compilerOptions.baseUrl = './src';
-    tsConfig.compilerOptions.paths = {
-      '@/*': ['*']
-    };
-
-    fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
+    if (fs.existsSync(tsConfigPath)) {
+      const tsConfigContent = fs.readFileSync(tsConfigPath, 'utf8');
+      const tsConfigAppend = `
+  {
+    "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
+    }
+  }
+  `;
+      fs.writeFileSync(tsConfigPath, tsConfigContent + tsConfigAppend);
+    }
 
     // Modificar vite.config.ts si existe
     const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
