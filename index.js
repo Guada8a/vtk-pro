@@ -46,6 +46,7 @@ async function createProject() {
             'src/hooks',
             'src/context',
             'src/utils',
+            'src/store',
             'src/assets/images',
             'src/assets/styles',
             'src/interfaces',
