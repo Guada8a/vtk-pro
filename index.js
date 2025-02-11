@@ -86,7 +86,6 @@ async function createProject() {
       throw error;
     }
 
-    console.log('📄 Creating files...');
     process.stdout.write(`${cyan}⏳ ${bright}Creating files ${reset}${gray}${''.padEnd(40)}${reset}`);
 
     try {

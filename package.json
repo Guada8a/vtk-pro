@@ -16,7 +16,8 @@
     "vite",
     "typescript",
     "react",
-    "project-generator"
+    "project-generator",
+    "npx"
   ],
   "author": "Guada8a",
   "license": "ISC",
@@ -31,5 +32,7 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "preferGlobal": false,
+  "type": "module"
 }
