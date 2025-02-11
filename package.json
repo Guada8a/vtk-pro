@@ -1,17 +1,17 @@
 {
-  "name": "fast-project",
+  "name": "vtk-pro",
   "version": "1.0.1",
   "description": "Generador rápido de proyectos con Vite y TypeScript",
   "main": "index.js",
   "bin": {
-    "fast-project": "./index.js"
+    "vtk-pro": "./index.js"
   },
   "scripts": {
     "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Guada8a/fast-project.git"
+    "url": "git+https://github.com/Guada8a/vtk-pro.git"
   },
   "keywords": [
     "vite",
@@ -22,9 +22,9 @@
   "author": "Guada8a",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Guada8a/fast-project/issues"
+    "url": "https://github.com/Guada8a/vtk-pro/issues"
   },
-  "homepage": "https://github.com/Guada8a/fast-project#readme",
+  "homepage": "https://github.com/Guada8a/vtk-pro#readme",
   "dependencies": {
     "child_process": "^1.0.2",
     "fs": "^0.0.1-security",
