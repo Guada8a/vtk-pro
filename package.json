@@ -30,7 +30,15 @@
     "fs": "^0.0.1-security",
     "path": "^0.12.7"
   },
+  "type": "module",
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0",
+    "pnpm": ">=6.0.0",
+    "yarn": ">=3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@8.3.0"
 }

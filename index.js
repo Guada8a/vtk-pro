@@ -33,7 +33,7 @@ async function createProject() {
     // Crear proyecto Vite con react 19.0.0
     // await executeCommand('npm', ['create', 'vite@latest', '.', '--template', 'react-ts', '--', '--y']);
     //Será vite 6.0.11 por problemas con la versión 19.0.0
-    await executeCommand('npm', ['init', 'vite@6.0', '.', '--template', 'react-ts', '--', '--y']);
+    await executeCommand('npm', ['create', 'vite@6.0', projectName, '--', '--template', 'react-ts']);
 
     console.log('📂 Creating folder structure...');
 
@@ -139,7 +139,7 @@ export default defineConfig({
           `import { RouterProvider } from 'react-router';
 import { ConfigProvider } from 'antd';
 import Routes from '@/router';
-import { theme } from '@/theme/antdTheme';
+import { theme } from '@/themes/antdTheme';
 function App() {
   return (
     <>
@@ -567,6 +567,9 @@ return (
       'framer-motion',
       'react-icons',
       'env-cmd',
+      '@tanstack/react-query',
+      'clsx',
+      'zustand'
     ];
 
     const installDependency = async (dep) => {
