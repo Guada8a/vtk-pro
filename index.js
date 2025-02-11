@@ -550,16 +550,6 @@ return (
     
     console.log('📦 Starting dependencies installation...\n');
     
-    const executeCommand = (command, args) => {
-      return new Promise((resolve, reject) => {
-        const process = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-        process.on('close', (code) => {
-          if (code === 0) resolve();
-          else reject(new Error(`Command failed with code ${code}`));
-        });
-      });
-    };
-    
     const installDependency = async (dep) => {
       process.stdout.write(`⏳ Installing ${dep.padEnd(30)}`);
       try {
