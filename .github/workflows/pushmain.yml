@@ -10,6 +10,7 @@ on:
     
 jobs:
   version-and-release:
+    if: ${{ !contains(github.event.head_commit.message, 'Release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +23,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-
-      - name: Setup npm token
-        run: |
-            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: 📦 Install dependencies
         run: npm install
@@ -57,28 +54,10 @@ jobs:
           git add .
           git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
-          git push --follow-tags && git push
+          git push
+          git push --tags
 
       - name: 📦 Publish
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-npm-pkg-github:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.REPOSITORY_TOKEN }}
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://npm.pkg.github.com
-
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
