@@ -59,6 +59,18 @@ jobs:
           git push
           git push --tags
 
+      - name: Create GitHub Release
+        if: ${{ steps.version-type.outputs.type == 'minor' }}
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ steps.version-type.outputs.type }}
+          release_name: Release ${{ steps.version-type.outputs.type }}
+          body: "Release of version ${{ steps.version-type.outputs.type }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+
       - name: Show package version
         run: |
             echo "Package version: $(jq -r '.version' package.json)"
