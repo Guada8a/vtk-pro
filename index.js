@@ -9,11 +9,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const projectName = process.argv[2] || 'my-vite-ts';
+
+if (projectName === '.') {
+  targetDir = process.cwd();
+  // Get the current directory name as project name
+  projectName = path.basename(targetDir);
+} else {
+  // Create project directory if not using current directory
+  fs.mkdirSync(projectName);
+  // Change to project directory
+  process.chdir(projectName);
+}
+/*
 // Create project directory
 fs.mkdirSync(projectName);
 
 // Change to project directory
 process.chdir(projectName);
+*/
 
 // Function to execute commands as promises
 function executeCommand(command, args) {
