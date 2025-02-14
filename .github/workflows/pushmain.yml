@@ -25,7 +25,7 @@ jobs:
       - name: Setup npm and GitHub Packages authentication
         run: |
             echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-            echo "@OWNER:registry=https://npm.pkg.github.com" >> ~/.npmrc
+            echo "@Guada8a:registry=https://npm.pkg.github.com" >> ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=${{ secrets.REPOSITORY_TOKEN }}" >> ~/.npmrc
 
       - name: 📦 Install dependencies
