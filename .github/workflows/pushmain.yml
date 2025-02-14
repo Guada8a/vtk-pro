@@ -52,7 +52,7 @@ jobs:
       - name: 📤 Push cambios y tags
         run: |
           git add package.json package.github.json
-          git commit -m "Update package version"
+          git commit -m "Update package version" || echo "No changes to commit"
           git push
           git push --tags
 
