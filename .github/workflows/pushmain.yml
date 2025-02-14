@@ -1,5 +1,7 @@
-name: Version and Release
+name: Version and Release Packages
 on:
+  release:
+    types: [created]
   push:
     branches:
       - main
@@ -7,25 +9,32 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/**'
-    
+
 jobs:
   version-and-release:
     if: ${{ !contains(github.event.head_commit.message, 'Release') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.REPOSITORY_TOKEN }}
-
-      - name: 📦 Setup Node.js for npm
+        
+      - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
+          scope: ${{ github.repository_owner }}
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test
 
       - name: Check Git status
         run: git status
@@ -54,39 +63,21 @@ jobs:
           git add .
           git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
-          git push
-          git push --tags
+          git push --tags && git push
 
-      - name: 📦 Setup Node.js for npmjs.org
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@Guada8a'
-
-      - name: 📦 Publish to npmjs.org
-        run: npm publish --access public
+      - name: 📦 Publish to NPM
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
+
       - name: 📦 Setup Node.js for GitHub Packages
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@Guada8a'
-
-      - name: Configurar autenticación para GitHub Packages
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.REPOSITORY_TOKEN }}" > .npmrc
-          echo "@Guada8a:registry=https://npm.pkg.github.com" >> .npmrc
-
-      - name: 🔧 Modify package.json for GitHub Packages
-        run: |
-          content=$(cat package.json)
-          echo "$content" | jq '.name = "@Guada8a/vtk-pro" | .publishConfig.registry = "https://npm.pkg.github.com/"' > package.json
+          registry-url: https://npm.pkg.github.com/
+          scope: ${{ github.repository_owner }}
 
       - name: 📦 Publish to GitHub Packages
-        run: npm publish --registry=https://npm.pkg.github.com/
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

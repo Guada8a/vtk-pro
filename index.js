@@ -113,6 +113,7 @@ async function createProject() {
       fs.writeFileSync(path.join(process.cwd(), '.gitignore'), `
 node_modules
 dist
+build
 .cache
 .env
 .env.local
