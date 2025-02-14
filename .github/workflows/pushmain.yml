@@ -54,6 +54,9 @@ jobs:
           
           NEW_VERSION=$(jq -r .version package.json)
           echo "New version is $NEW_VERSION"
+          
+          # Establecer la versión extraída como variable de entorno
+          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: 🔄 Copiar versión a package.github.json
         run: |
