@@ -1,4 +1,4 @@
-name: Publish to GitHub Package Registry
+name: Publish to GitHub Package Registry (npm.pkg.github.com)
 on:
   push:
     branches:
