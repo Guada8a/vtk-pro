@@ -670,7 +670,6 @@ export const useMutationFetch = <TData, TError = Error, TVariables = unknown>({
       const green = '\x1b[32m';
       const red = '\x1b[31m';
       const reset = '\x1b[0m';
-      const dim = '\x1b[2m';
       const bright = '\x1b[1m';
 
       process.stdout.write(`${cyan}⏳ ${bright}Installing ${reset}${gray}${dep.padEnd(35)}${reset}`);
