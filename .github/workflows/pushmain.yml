@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - 'package.json'
       - 'package-lock.json'
-      - '.github/workflows/**'
+      # - '.github/workflows/**'
     
 jobs:
   version-and-release:
