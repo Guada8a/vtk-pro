@@ -23,7 +23,6 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-          scope: '@Guada8a'
 
       - name: 📦 Install dependencies
         run: npm install
@@ -58,6 +57,13 @@ jobs:
           git push
           git push --tags
 
+      - name: 📦 Setup Node.js for npmjs.org
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@Guada8a'
+
       - name: 📦 Publish to npmjs.org
         run: npm publish --access public
         env:
@@ -70,12 +76,17 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@Guada8a'
 
+      - name: Configurar autenticación para GitHub Packages
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.REPOSITORY_TOKEN }}" > .npmrc
+          echo "@Guada8a:registry=https://npm.pkg.github.com" >> .npmrc
+
       - name: 🔧 Modify package.json for GitHub Packages
         run: |
           content=$(cat package.json)
           echo "$content" | jq '.name = "@Guada8a/vtk-pro" | .publishConfig.registry = "https://npm.pkg.github.com/"' > package.json
 
       - name: 📦 Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --registry=https://npm.pkg.github.com/
         env:
           NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}

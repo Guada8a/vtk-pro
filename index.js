@@ -115,6 +115,7 @@ node_modules
 dist
 .cache
 .env
+.env.local
 `);
 
       // ================== vite.config.ts ==================
