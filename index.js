@@ -704,7 +704,7 @@ export const useMutationFetch = <TData, TError = Error, TVariables = unknown>({
         console.log(`\x1b[90m│\x1b[0m  cd ${projectName.padEnd(23)}\x1b[90m│\x1b[0m`);
         console.log(`\x1b[90m│\x1b[0m  npm run dev${' '.repeat(16)}\x1b[90m│\x1b[0m`);
         console.log(`\x1b[90m╰─────────────────────────────╯\x1b[0m`);
-        console.log('\n\x1b[36m💻 Happy coding! 😃\x1b[0m\n');
+        console.log('\n\x1b[36m💻 Happy coding! You can use the project 😃\x1b[0m\n');
       } catch (error) {
         console.log('\n\x1b[31m╭─────────────────────────╮');
         console.log('│    Installation Error    │');
