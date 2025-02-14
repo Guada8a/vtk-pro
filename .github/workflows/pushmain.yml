@@ -1,5 +1,4 @@
-name: Version, Release, and Publish to GitHub Package Registry
-
+name: Version and Release
 on:
   push:
     branches:
@@ -8,16 +7,18 @@ on:
       - 'package.json'
       - 'package.github.json'
       - 'package-lock.json'
-
+      # - '.github/workflows/**'
+    
 jobs:
-  version-release-publish:
+  version-and-release:
+    if: ${{ !contains(github.event.head_commit.message, 'Release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.REPOSITORY_TOKEN }}
-
+        
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -26,6 +27,14 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm install
+
+      - name: Check Git status
+        run: git status
+
+      - name: Stage changes
+        run: |
+          git add .
+          git status
 
       - name: 🕵️ Detect version type
         id: version-type
@@ -43,54 +52,38 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # Obtener la versión actual y aplicar la versión semántica
-          CURRENT_VERSION=$(jq -r .version package.json)
-          echo "Current version is $CURRENT_VERSION"
-          
-          # Usar npm para aumentar la versión semántica de acuerdo al tipo
-          npm version ${{ steps.version-type.outputs.type }} --no-git-tag-version -m "Release %s"
-          
-          NEW_VERSION=$(jq -r .version package.json)
-          echo "New version is $NEW_VERSION"
-          
-          # Establecer la versión extraída como variable de entorno
-          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: 🔄 Copiar versión a package.github.json
-        run: |
-          jq '.version |= $new_version' package.json --arg new_version "$NEW_VERSION" > package.github.json
-
-      - name: 📤 Push cambios y tags
-        run: |
-          git add package.json package.github.json
-          git commit -m "Update package version to $NEW_VERSION" || echo "No changes to commit"
+          git add .
+          git commit -m "Update package" || echo "No changes to commit"
+          npm version ${{ steps.version-type.outputs.type }} -m 
+          echo ${{ steps.version-type.outputs.type }}
+          "Release %s"
           git push
           git push --tags
 
-      - name: 🚀 Crear Release en GitHub
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.version-type.outputs.type }}
-          name: "Release v${{ steps.version-type.outputs.type }}"
-          body: "Automated release"
-          draft: false
-          prerelease: false
+      - name: 📦 Publish
+        run: npm publish
         env:
-          GITHUB_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: 📦 Reemplazar package.json con package.github.json
-        run: cp package.github.json package.json
+  # publish-npm-pkg-github:
+  #   needs: version-and-release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #         token: ${{ secrets.REPOSITORY_TOKEN }}
 
-      - name: 📦 Publicar en GitHub Package Registry
-        run: |
-          VERSION=$(jq -r .version package.github.json)
-          echo "La versión extraída es: $VERSION"
-          # Establecer la versión como una variable de entorno para el siguiente paso
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+  #     - name: 📦 Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         registry-url: https://npm.pkg.github.com
 
-      - run: npm ci
+  #     - name: 📝 Reemplazar package.json con package.github.json
+  #       run: cp package.github.json package.json
 
-      - run: npm publish --tag $VERSION
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+  #     - run: npm ci
+  #     - run: npm publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}    
