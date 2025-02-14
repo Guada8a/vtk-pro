@@ -74,6 +74,12 @@ jobs:
             jq --arg version "$PACKAGE_VERSION" '.version = $version' package.github.json > tmp.json && mv tmp.json package.github.json
             echo "Package version: $(jq -r '.version' package.github.json)"
 
+      - name: Commit and push package.github.json
+        run: |
+            git add package.github.json
+            git commit -m "Update package.github.json"
+            git push
+
       - name: 📦 Publish
         run: npm publish
         env:
@@ -93,6 +99,9 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com
+
+      - name: Pull changes
+        run: git pull
 
       - name: Show package version on package.github.json
         run: |
