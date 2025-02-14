@@ -60,7 +60,8 @@ jobs:
           git push --tags
 
       - name: Show package version
-        run: "echo 'Package version: $(jq -r \".version\" package.json)'"
+        run: |
+            echo "Package version: $(jq -r '.version' package.json)"
 
       - name: 📦 Publish
         run: npm publish
