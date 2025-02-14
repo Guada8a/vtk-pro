@@ -21,7 +21,14 @@ jobs:
       - name: 📝 Reemplazar package.json con package.github.json
         run: cp package.github.json package.json
 
+      - name: 📦 Extraer versión de package.github.json
+        run: |
+          VERSION=$(jq -r .version package.github.json)
+          echo "La versión extraída es: $VERSION"
+          # Establecer la versión como una variable de entorno para el siguiente paso
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - run: npm ci
-      - run: npm publish
+      - run: npm publish --tag $VERSION
         env:
           NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
