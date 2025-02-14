@@ -1,6 +1,6 @@
 {
 	"name": "@Guada8a/vtk-pro",
-	"version": "1.0.61",
+	"version": "1.0.62",
 	"description": "Generador rápido de proyectos con Vite y TypeScript",
 	"bin": {
 		"vtk-pro": "index.js"
@@ -38,7 +38,7 @@
 		"yarn": ">=3.0.0"
 	},
 	"publishConfig": {
-    "registry": "https://npm.pkg.github.com",
+		"registry": "https://npm.pkg.github.com",
 		"access": "public"
 	},
 	"packageManager": "pnpm@8.3.0"
