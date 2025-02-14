@@ -41,8 +41,6 @@ async function createProject() {
     await executeCommand('npm', ['create', 'vite@6.0', '.', '--', '--template', 'react-ts']);
     console.log('\x1b[32m✓ Project created with Vite\x1b[0m');
 
-    console.log('📂 Creating folder structure...');
-
     // Estructura de carpetas
     const folders = [
       'src/api',
@@ -71,26 +69,34 @@ async function createProject() {
     const bright = '\x1b[1m';
 
     // Mostrar mensaje de inicio de creación de estructura
-    process.stdout.write(`${cyan}⏳ ${bright}Creating project structure ${reset}${gray}${''.padEnd(20)}${reset}`);
+    const createFolderStructure = async (folders) => {
 
-    try {
-      // Crear carpetas
-      folders.forEach(folder => {
-        const folderPath = path.join(process.cwd(), folder);
-        if (!fs.existsSync(folderPath)) {
-          fs.mkdirSync(folderPath, { recursive: true });
-          if (!folder.includes('assets') && !folder.includes('components/errors') && !folder.includes('themes')) {
-            const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
-            fs.writeFileSync(path.join(folderPath, fileType), '');
+      process.stdout.write(`${cyan}⏳ ${bright}Creating project structure ${reset}${gray}${''.padEnd(35)}${reset}`);
+
+      try {
+        // Crear carpetas
+        folders.forEach((folder, index) => {
+          const folderPath = path.join(process.cwd(), folder);
+
+          if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+
+            if (!folder.includes('assets') && !folder.includes('components/errors') && !folder.includes('themes')) {
+              const fileType = ['api', 'hooks', 'interfaces', 'utils'].some(dir => folder.includes(dir)) ? 'index.ts' : 'index.tsx';
+              fs.writeFileSync(path.join(folderPath, fileType), '');
+            }
           }
-        }
-      });
-      process.stdout.write(`\r${green}✓ Created project structure ${reset}${gray}${''.padEnd(20)}${reset}\n`);
-    }
-    catch (error) {
-      process.stdout.write(`\r${red}✗ Failed to create project structure ${reset}${gray}${''.padEnd(20)}${reset}\n`);
-      throw error;
-    }
+        });
+        process.stdout.write(`\r${green}✓ Created project structure ${reset}${gray}${''.padEnd(35)}${reset}\n`);
+      } catch (error) {
+        process.stdout.write(`\r${red}✗ Failed to create project structure ${reset}${gray}${''.padEnd(35)}${reset}\n`);
+        throw error;
+      }
+    };
+
+
+    // Llamar a la función createFolderStructure
+    await createFolderStructure(folders);
 
     process.stdout.write(`${cyan}⏳ ${bright}Creating files ${reset}${gray}${''.padEnd(40)}${reset}`);
 
@@ -667,53 +673,108 @@ export const useMutationFetch = <TData, TError = Error, TVariables = unknown>({
       'zustand'
     ];
 
-    const installDependency = async (dep) => {
-      const gray = '\x1b[90m';
-      const cyan = '\x1b[36m';
-      const green = '\x1b[32m';
-      const red = '\x1b[31m';
-      const reset = '\x1b[0m';
-      const bright = '\x1b[1m';
+    const COLORS = {
+      gray: '\x1b[90m',
+      cyan: '\x1b[36m',
+      green: '\x1b[32m',
+      red: '\x1b[31m',
+      reset: '\x1b[0m',
+      bright: '\x1b[1m',
+      yellow: '\x1b[33m'
+    };
 
-      process.stdout.write(`${cyan}⏳ ${bright}Installing ${reset}${gray}${dep.padEnd(35)}${reset}`);
-      try {
-        await executeCommand('npm', ['install', '--silent', ...dep.split(' ')]);
-        process.stdout.write(`\r${green}✓ ${bright}Installed  ${reset}${gray}${dep.padEnd(35)}${reset}\n`);
-      } catch (error) {
-        process.stdout.write(`\r${red}✗ Failed     ${reset}${gray}${dep.padEnd(35)}${reset}\n`);
-        throw error;
+    const spinners = {
+      dots: {
+        frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+        interval: 80
+      },
+      line: {
+        frames: ["-", "\\", "|", "/"],
+        interval: 130
+      },
+      star: {
+        frames: ["✶", "✸", "✹", "✺", "✹", "✷"],
+        interval: 70
       }
     };
 
-    (async () => {
+    const createSpinner = (type = 'dots') => {
+      let currentFrame = 0;
+      const spinner = spinners[type];
+
+      return {
+        frame: () => spinner.frames[currentFrame],
+        next: () => {
+          currentFrame = (currentFrame + 1) % spinner.frames.length;
+          return spinner.frames[currentFrame];
+        },
+        interval: spinner.interval
+      };
+    };
+
+    const installDependency = async (dep, index, total) => {
+      const { gray, cyan, green, red, reset } = COLORS;
+      const spinner = createSpinner('dots');
+      let spinnerInterval;
+
+      // Inicia el mensaje con el spinner
+      process.stdout.write(`${gray}[${cyan}${index + 1}/${total}${gray}] ${reset}`);
+
+      // Inicia el spinner
+      spinnerInterval = setInterval(() => {
+        process.stdout.cursorTo(0);
+        process.stdout.write(`${spinner.next()} ${gray}[${cyan}${index + 1}/${total}${gray}] ${reset}Installing ${cyan}${dep}${reset}...`);
+      }, spinner.interval);
+
       try {
-        console.log('\n📦 \x1b[1mStarting dependencies installation...\x1b[0m\n');
-
-        for (const dep of dependencies) {
-          await installDependency(dep);
-        }
-
-        const successBox = [
-          '\n\x1b[32m╭─────────────────────────────────────╮',
-          '│     ✨ Installation Complete! ✨      │',
-          '╰─────────────────────────────────────╯\x1b[0m\n'
-        ];
-
-        console.log(successBox.join('\n'));
-        console.log('\x1b[1m\x1b[32m🎉 Project created successfully!\x1b[0m');
-        console.log('\n\x1b[33m📂  Run the following commands:\x1b[0m');
-        console.log(`\x1b[90m╭─────────────────────────────╮`);
-        console.log(`\x1b[90m│\x1b[0m  cd ${projectName.padEnd(23)}\x1b[90m│\x1b[0m`);
-        console.log(`\x1b[90m│\x1b[0m  npm run dev${' '.repeat(16)}\x1b[90m│\x1b[0m`);
-        console.log(`\x1b[90m╰─────────────────────────────╯\x1b[0m`);
-        console.log('\n\x1b[36m💻 Happy coding! You can use the project 😃\x1b[0m\n');
+        await executeCommand('npm', ['install', '--silent', ...dep.split(' ')]);
+        clearInterval(spinnerInterval);
+        process.stdout.cursorTo(0);
+        process.stdout.clearLine(0);
+        console.log(`${green}✓${reset} ${gray}[${green}${index + 1}/${total}${gray}] ${green}Installed ${cyan}${dep}${reset}`);
+        return true;
       } catch (error) {
-        console.log('\n\x1b[31m╭─────────────────────────╮');
-        console.log('│    Installation Error    │');
-        console.log('╰─────────────────────────╯\x1b[0m');
-        console.error('\x1b[31m❌ Error:\x1b[0m', error);
+        clearInterval(spinnerInterval);
+        process.stdout.cursorTo(0);
+        process.stdout.clearLine(0);
+        console.log(`${red}✗${reset} ${gray}[${red}${index + 1}/${total}${gray}] ${red}Failed to install ${cyan}${dep}${reset}`);
+        return false;
       }
-    })();
+    };
+
+    const main = async () => {
+      const { green, red, cyan, bright, reset } = COLORS;
+
+      console.log(`\n${bright}📦 Installing dependencies...${reset}\n`);
+
+      let failures = 0;
+
+      for (let i = 0; i < dependencies.length; i++) {
+        const success = await installDependency(dependencies[i], i, dependencies.length);
+        if (!success) failures++;
+      }
+
+      if (failures === 0) {
+        console.log('\n' + '─'.repeat(50));
+        console.log(`${green}✨ All dependencies installed successfully! ${reset}`);
+        console.log('─'.repeat(50));
+
+        console.log(`\n${bright}Next steps:${reset}`);
+        console.log(`  cd ${bright}${projectName}${reset}`);
+        console.log(`  ${bright}npm run dev${reset}`);
+
+        console.log(`\n${cyan}Happy coding! 🚀${reset}\n`);
+      } else {
+        console.log(`\n${red}❌ Installation failed${reset}`);
+        console.log(`${red}→ ${failures} package(s) could not be installed${reset}\n`);
+        process.exit(1);
+      }
+    };
+
+    main().catch(error => {
+      console.error(`\n${COLORS.red}❌ Installation failed:${COLORS.reset}`, error);
+      process.exit(1);
+    });
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);
