@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.REPOSITORY_TOKEN }}
-        
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -57,7 +57,21 @@ jobs:
           git push
           git push --tags
 
-      - name: 📦 Publish
-        run: npm publish
+      - name: 📦 Publish to npmjs.org
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: 🔧 Modify package.json for GitHub Packages
+        run: jq '.name = "@Guada8a/vtk-pro"' package.json > package.json.tmp && mv package.json.tmp package.json
+
+      - name: 📦 Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+
+      - name: 📦 Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
