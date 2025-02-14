@@ -1,44 +1,45 @@
 {
-  "name": "@Guada8a/vtk-pro",
-  "version": "1.0.28",
-  "description": "Generador rápido de proyectos con Vite y TypeScript",
-  "bin": {
-    "vtk-pro": "index.js"
-  },
-  "scripts": {
-    "start": "node index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Guada8a/vtk-pro.git"
-  },
-  "keywords": [
-    "vite",
-    "typescript",
-    "react",
-    "project-generator",
-    "npx"
-  ],
-  "author": "Guada8a",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Guada8a/vtk-pro/issues"
-  },
-  "homepage": "https://github.com/Guada8a/vtk-pro#readme",
-  "dependencies": {
-    "child_process": "^1.0.2",
-    "fs": "^0.0.1-security",
-    "path": "^0.12.7"
-  },
-  "type": "module",
-  "engines": {
-    "node": ">=18.0.0",
-    "bun": ">=1.0.0",
-    "pnpm": ">=6.0.0",
-    "yarn": ">=3.0.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "packageManager": "pnpm@8.3.0"
+	"name": "@Guada8a/vtk-pro",
+	"version": "1.0.28",
+	"description": "Generador rápido de proyectos con Vite y TypeScript",
+	"bin": {
+		"vtk-pro": "index.js"
+	},
+	"scripts": {
+		"start": "node index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Guada8a/vtk-pro.git"
+	},
+	"keywords": [
+		"vite",
+		"typescript",
+		"react",
+		"project-generator",
+		"npx"
+	],
+	"author": "Guada8a",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Guada8a/vtk-pro/issues"
+	},
+	"homepage": "https://github.com/Guada8a/vtk-pro#readme",
+	"dependencies": {
+		"child_process": "^1.0.2",
+		"fs": "^0.0.1-security",
+		"path": "^0.12.7"
+	},
+	"type": "module",
+	"engines": {
+		"node": ">=18.0.0",
+		"bun": ">=1.0.0",
+		"pnpm": ">=6.0.0",
+		"yarn": ">=3.0.0"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/",
+		"access": "public"
+	},
+	"packageManager": "pnpm@8.3.0"
 }
