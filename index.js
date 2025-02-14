@@ -39,6 +39,7 @@ async function createProject() {
     // await executeCommand('npm', ['create', 'vite@latest', '.', '--template', 'react-ts', '--', '--y']);
     //Será vite 6.0.11 por problemas con la versión 19.0.0
     await executeCommand('npm', ['create', 'vite@6.0', '.', '--', '--template', 'react-ts']);
+    console.log('✓ Project created with Vite');
 
     console.log('📂 Creating folder structure...');
 

@@ -12,7 +12,6 @@ on:
 
 jobs:
   version-and-release:
-    if: ${{ !contains(github.event.head_commit.message, 'Release') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
