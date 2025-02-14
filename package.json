@@ -1,6 +1,6 @@
 {
 	"name": "@Guada8a/vtk-pro",
-	"version": "1.0.62",
+	"version": "1.0.63",
 	"description": "Generador rápido de proyectos con Vite y TypeScript",
 	"bin": {
 		"vtk-pro": "index.js"
