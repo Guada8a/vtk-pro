@@ -54,8 +54,8 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add .
           git commit -m "Update package" || echo "No changes to commit"
-          npm version ${{ steps.version-type.outputs.type }} -m
-          "Release %s"
+          npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
+          echo "Published version $(npm pkg get version)"
           git push
           git push --tags
 
