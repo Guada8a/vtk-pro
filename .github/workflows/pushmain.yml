@@ -5,6 +5,7 @@ on:
       - main
     paths-ignore:
       - 'package.json'
+      - 'package.github.json'
       - 'package-lock.json'
       # - '.github/workflows/**'
     
