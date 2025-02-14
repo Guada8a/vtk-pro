@@ -62,6 +62,17 @@ jobs:
       - name: Show package version
         run: |
             echo "Package version: $(jq -r '.version' package.json)"
+            PACKAGE_VERSION=$(jq -r '.version' package.json)
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+
+      - name: Show package version on package.github.json
+        run: |
+            echo "Package version: $(jq -r '.version' package.github.json)"
+
+      - name: Update package.github.json and show new version
+        run: |
+            jq '.version = env.PACKAGE_VERSION' package.github.json > tmp.json && mv tmp.json package.github.json
+            echo "Package version: $(jq -r '.version' package.github.json)"
 
       - name: 📦 Publish
         run: npm publish
