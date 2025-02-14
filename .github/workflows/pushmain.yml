@@ -1,4 +1,5 @@
-name: Version and Release on GitHub
+name: Version, Release, and Publish to GitHub Package Registry
+
 on:
   push:
     branches:
@@ -7,11 +8,9 @@ on:
       - 'package.json'
       - 'package.github.json'
       - 'package-lock.json'
-      # - '.github/workflows/**'
 
 jobs:
-  version-and-release:
-    if: ${{ !contains(github.event.head_commit.message, 'Release') }}
+  version-release-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,3 +78,19 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+
+      - name: 📦 Reemplazar package.json con package.github.json
+        run: cp package.github.json package.json
+
+      - name: 📦 Publicar en GitHub Package Registry
+        run: |
+          VERSION=$(jq -r .version package.github.json)
+          echo "La versión extraída es: $VERSION"
+          # Establecer la versión como una variable de entorno para el siguiente paso
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - run: npm ci
+
+      - run: npm publish --tag $VERSION
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
