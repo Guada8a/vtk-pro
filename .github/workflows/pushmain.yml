@@ -18,11 +18,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPOSITORY_TOKEN }}
 
-      - name: 📦 Setup Node.js
+      - name: 📦 Setup Node.js for npm
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
+          registry-url: 'https://registry.npmjs.org'
 
       - name: 📦 Install dependencies
         run: npm install
@@ -58,17 +58,16 @@ jobs:
           git push --tags
 
       - name: 📦 Publish to npmjs.org
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          npm publish --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: 🔧 Setup for GitHub Packages
-        run: |
-          rm ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.REPOSITORY_TOKEN }}" > ~/.npmrc
-          echo "@Guada8a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          
+      - name: 📦 Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@Guada8a'
 
       - name: 🔧 Modify package.json for GitHub Packages
         run: |
