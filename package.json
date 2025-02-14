@@ -3,7 +3,7 @@
   "version": "1.0.28",
   "description": "Generador rápido de proyectos con Vite y TypeScript",
   "bin": {
-    "vtk-pro": "./index.js"
+    "vtk-pro": "index.js"
   },
   "scripts": {
     "start": "node index.js"
