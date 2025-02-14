@@ -29,6 +29,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - run: npm ci
+
       - run: npm publish --tag $VERSION
         env:
           NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
