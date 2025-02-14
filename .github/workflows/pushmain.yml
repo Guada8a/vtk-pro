@@ -44,15 +44,25 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
+          
+          # Obtener la versión actual y aplicar la versión semántica
+          CURRENT_VERSION=$(jq -r .version package.json)
+          echo "Current version is $CURRENT_VERSION"
+          
+          # Usar npm para aumentar la versión semántica de acuerdo al tipo
+          npm version ${{ steps.version-type.outputs.type }} --no-git-tag-version -m "Release %s"
+          
+          NEW_VERSION=$(jq -r .version package.json)
+          echo "New version is $NEW_VERSION"
 
       - name: 🔄 Copiar versión a package.github.json
-        run: jq '.version |= "${{ steps.version-type.outputs.type }}"' package.json > package.github.json
+        run: |
+          jq '.version |= $new_version' package.json --arg new_version "$NEW_VERSION" > package.github.json
 
       - name: 📤 Push cambios y tags
         run: |
           git add package.json package.github.json
-          git commit -m "Update package version" || echo "No changes to commit"
+          git commit -m "Update package version to $NEW_VERSION" || echo "No changes to commit"
           git push
           git push --tags
 
