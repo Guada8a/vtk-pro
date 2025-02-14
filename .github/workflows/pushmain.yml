@@ -79,25 +79,34 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  # publish-npm-pkg-github:
-  #   needs: version-and-release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #         token: ${{ secrets.REPOSITORY_TOKEN }}
+  publish-npm-pkg-github:
+    needs: version-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.REPOSITORY_TOKEN }}
 
-  #     - name: 📦 Setup Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #         registry-url: https://npm.pkg.github.com
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
 
-  #     - name: 📝 Reemplazar package.json con package.github.json
-  #       run: cp package.github.json package.json
+      - name: Show package version on package.github.json
+        run: |
+            echo "Package version: $(jq -r '.version' package.github.json)"
+            PACKAGE_VERSION=$(jq -r '.version' package.github.json)
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
 
-  #     - run: npm ci
-  #     - run: npm publish
-  #       env:
-  #         NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}    
+      - name: 📝 Replace package.json with package.github.json
+        run: cp package.github.json package.json
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 📦 Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
