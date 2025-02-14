@@ -71,7 +71,7 @@ jobs:
 
       - name: Update package.github.json and show new version
         run: |
-            jq '.version = env.PACKAGE_VERSION' package.github.json > tmp.json && mv tmp.json package.github.json
+            jq --arg version "$PACKAGE_VERSION" '.version = $version' package.github.json > tmp.json && mv tmp.json package.github.json
             echo "Package version: $(jq -r '.version' package.github.json)"
 
       - name: 📦 Publish
