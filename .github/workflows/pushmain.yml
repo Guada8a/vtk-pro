@@ -23,6 +23,7 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
+          scope: '@Guada8a'
 
       - name: 📦 Install dependencies
         run: npm install
@@ -58,7 +59,7 @@ jobs:
           git push --tags
 
       - name: 📦 Publish to npmjs.org
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           

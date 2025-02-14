@@ -530,7 +530,7 @@ return (
         `export const theme = {
   token: {
     // ==== [ Typography ] ====
-    fontFamily: 'Montserrat, sans-serif',
+    // fontFamily: 'Montserrat, sans-serif',
     borderRadius: 12,
     // fontSize: '16px',
     // ==== [ Colors ] ====
