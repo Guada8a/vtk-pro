@@ -8,7 +8,7 @@ on:
       - 'package.github.json'
       - 'package-lock.json'
       # - '.github/workflows/**'
-    
+
 jobs:
   version-and-release:
     if: ${{ !contains(github.event.head_commit.message, 'Release') }}
@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.REPOSITORY_TOKEN }}
-        
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,14 +27,6 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm install
-
-      - name: Check Git status
-        run: git status
-
-      - name: Stage changes
-        run: |
-          git add .
-          git status
 
       - name: 🕵️ Detect version type
         id: version-type
@@ -52,13 +44,25 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
+
+      - name: 🔄 Copiar versión a package.github.json
+        run: jq '.version |= "${{ steps.version-type.outputs.type }}"' package.json > package.github.json
+
+      - name: 📤 Push cambios y tags
+        run: |
+          git add package.json package.github.json
+          git commit -m "Update package version"
           git push
           git push --tags
 
-      - name: 📦 Publish
-        run: npm publish
+      - name: 🚀 Crear Release en GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version-type.outputs.type }}
+          name: "Release v${{ steps.version-type.outputs.type }}"
+          body: "Automated release"
+          draft: false
+          prerelease: false
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
