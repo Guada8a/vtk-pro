@@ -55,9 +55,12 @@ jobs:
           git add .
           git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
-          echo "Published version $(npm pkg get version)"
+          echo "$(npm pkg get version)"
           git push
           git push --tags
+
+      - name: Show package version
+        run: "echo 'Package version: $(jq -r \".version\" package.json)'"
 
       - name: 📦 Publish
         run: npm publish
