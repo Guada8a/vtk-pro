@@ -60,6 +60,6 @@ jobs:
           git push --follow-tags && git push
 
       - name: 📦 Publish
-        run: npm publish dist
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
