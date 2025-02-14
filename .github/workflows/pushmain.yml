@@ -1,21 +1,16 @@
-name: Version and Release Packages
+name: Version and Release
 on:
-  release:
-    types: [created]
   push:
     branches:
       - main
     paths-ignore:
-      # - 'package.json'
+      - 'package.json'
       - 'package-lock.json'
-      # - '.github/workflows/**'
-
+      - '.github/workflows/**'
+    
 jobs:
   version-and-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,10 +22,9 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-          scope: ${{ github.repository_owner }}
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Check Git status
         run: git status
@@ -59,21 +53,10 @@ jobs:
           git add .
           git commit -m "Update package" || echo "No changes to commit"
           npm version ${{ steps.version-type.outputs.type }} -m "Release %s"
-          git push --tags && git push
+          git push
+          git push --tags
 
-      - name: 📦 Publish to NPM
+      - name: 📦 Publish
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: 📦 Setup Node.js for GitHub Packages
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-          scope: ${{ github.repository_owner }}
-
-      - name: 📦 Publish to GitHub Packages
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
