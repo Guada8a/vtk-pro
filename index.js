@@ -51,10 +51,10 @@ function executeCommand(command, args) {
 
 async function createProject() {
   try {
+    // await executeCommand('npm', ['create', 'vite@6.0', '.', '--', '--template', 'react-ts']);
+    
     // Crear proyecto Vite con react 19.0.0
-    // await executeCommand('npm', ['create', 'vite@latest', '.', '--template', 'react-ts', '--', '--y']);
-    //Será vite 6.0.11 por problemas con la versión 19.0.0
-    await executeCommand('npm', ['create', 'vite@6.0', '.', '--', '--template', 'react-ts']);
+    await executeCommand('npm', ['create', 'vite@latest', '.', '--', '--template', 'react-ts']);
     console.log('\x1b[32m✓ Project created with Vite\x1b[0m');
 
     // Estructura de carpetas
@@ -170,6 +170,8 @@ export default defineConfig({
 import { ConfigProvider } from 'antd';
 import Routes from '@/router';
 import { theme } from '@/themes/antdTheme';
+import '@ant-design/v5-patch-for-react-19';
+
 function App() {
   return (
     <>
@@ -679,6 +681,7 @@ export const useMutationFetch = <TData, TError = Error, TVariables = unknown>({
       'antd',
       'react-router@latest',
       'tailwindcss @tailwindcss/vite',
+      '@ant-design/v5-patch-for-react-19 --save',
       'dayjs',
       'kamey-components@latest',
       'framer-motion',

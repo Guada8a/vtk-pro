@@ -26,8 +26,8 @@ yarn dlx vtk-pro my-app
 
 This project uses the following dependencies:
 
-* Vite Typescript 6.0.1
-* React 18.3.1
+* Vite Typescript 6.2
+* React 19
 * Kamey-Components
 * TailwindCSS 4.0.0
 * React Router 7
